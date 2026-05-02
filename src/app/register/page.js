@@ -70,7 +70,7 @@ export default function RegisterPage() {
             />
           </label>
 
-          <label className="input input-bordered flex items-center gap-2 rounded-2xl">
+          <label className="input input-bordered flex items-center gap-3 rounded-2xl">
             <ImageIcon size={18} />
             <input
               type="url"
