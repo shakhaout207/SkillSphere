@@ -47,7 +47,7 @@ export default function Footer() {
         <div>
           <h3 className="footer-title text-white">Social Links</h3>
 
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <a className="btn btn-circle btn-sm" href="#">
               <Globe size={16} />
             </a>
