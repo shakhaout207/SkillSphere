@@ -57,7 +57,7 @@ export default function Navbar() {
         </ul>
       </div>
 
-      <div className="navbar-end gap-3">
+      <div className="navbar-end gap-4">
         {user ? (
           <>
             <Link href="/my-profile" className="avatar">
