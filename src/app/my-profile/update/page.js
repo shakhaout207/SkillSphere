@@ -35,7 +35,7 @@ export default function UpdateProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 grid place-items-center px-5 py-14">
+    <main className="min-h-screen bg-slate-50 grid place-items-center px-6 py-14">
       <div className="w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl border border-slate-100">
         <h1 className="text-4xl font-black text-center">Update Profile</h1>
         <p className="text-center text-slate-500 mt-2">
