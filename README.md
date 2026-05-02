@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# SkillSphere - Online Learning Platform
 
-## Getting Started
+SkillSphere is a simple online learning platform built with Next.js. The project allows users to browse courses, view course information, register, login, and access a profile page. It is designed as a student project to demonstrate routing, reusable components, data handling, and basic authentication-related interface design.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Home page with project introduction
+- Course listing page
+- Course cards with course information
+- Login page
+- Registration page
+- My Profile page
+- Navigation bar and footer
+- Reusable React components
+- Course data stored separately
+- Custom 404 page
+- Responsive user interface
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technology Used
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- Next.js
+- React.js
+- JavaScript
+- Tailwind CSS
+- CSS
+- Git and GitHub
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```text
+src/
+  app/
+    courses/
+    login/
+    my-profile/
+    register/
+    layout.js
+    page.js
+    not-found.js
+    globals.css
 
-To learn more about Next.js, take a look at the following resources:
+  components/
+    Navbar.jsx
+    Footer.jsx
+    CourseCard.jsx
+    FadeIn.jsx
+    ProtectedCourseDetails.jsx
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+  context/
+    AuthContext.jsx
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  data/
+    courses.js
