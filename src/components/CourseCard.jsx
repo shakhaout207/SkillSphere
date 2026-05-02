@@ -4,7 +4,7 @@ import { Clock, Star, Signal } from "lucide-react";
 export default function CourseCard({ course }) {
   return (
     <div className="card bg-white shadow-xl border border-slate-100 overflow-hidden hover:-translate-y-2 transition-all duration-300">
-      <figure className="h-52 overflow-hidden">
+      <figure className="h-54 overflow-hidden">
         <img
           src={course.image}
           alt={course.title}
