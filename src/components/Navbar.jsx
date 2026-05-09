@@ -1,87 +1,76 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { GraduationCap, LogOut, Menu, UserRound } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
-  const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, loading, logoutUser } = useAuth();
+  const router = useRouter();
 
-  const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/courses", label: "Courses" },
-    { href: "/my-profile", label: "My Profile" }
-  ];
+  const handleLogout = async () => {
+    await logoutUser();
+    router.push("/login");
+  };
 
   return (
-    <div className="navbar sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200 px-4 md:px-10">
-      <div className="navbar-start">
-        <div className="dropdown">
-          <button tabIndex={0} className="btn btn-ghost lg:hidden">
-            <Menu />
-          </button>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-white rounded-box z-50 mt-3 w-53 p-2 shadow"
-          >
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href}>{link.label}</Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+    <nav className="bg-white shadow px-6 py-4 flex items-center justify-between">
+      <Link href="/" className="text-2xl font-bold text-orange-500">
+        SkillSphere
+      </Link>
 
-        <Link href="/" className="flex items-center gap-2 text-xl font-extrabold">
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary text-white">
-            <GraduationCap size={23} />
-          </span>
-          <span>SkillSphere</span>
+      <div className="flex items-center gap-5">
+        <Link href="/" className="font-medium hover:text-orange-500">
+          Home
         </Link>
-      </div>
+        <Link href="/courses" className="font-medium hover:text-orange-500">
+          Courses
+        </Link>
 
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 gap-2">
-          {navLinks.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className={pathname === link.href ? "font-bold text-primary" : ""}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="navbar-end gap-4">
-        {user ? (
+        {loading ? (
+          <span className="text-sm text-gray-400">Loading...</span>
+        ) : user ? (
           <>
-            <Link href="/my-profile" className="avatar">
-              <div className="w-10 rounded-full ring ring-primary ring-offset-2">
-                <img src={user.image} alt={user.name} />
-              </div>
+            <Link
+              href="/my-profile"
+              className="font-medium hover:text-orange-500"
+            >
+              My Profile
             </Link>
-            <button onClick={logout} className="btn btn-outline btn-primary rounded-full">
-              <LogOut size={17} />
-              <span className="hidden sm:inline">Logout</span>
+
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt="User"
+                className="w-9 h-9 rounded-full object-cover border"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold">
+                {user.displayName ? user.displayName[0].toUpperCase() : "U"}
+              </div>
+            )}
+
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg"
+            >
+              Logout
             </button>
           </>
         ) : (
           <>
-            <Link href="/login" className="btn btn-ghost rounded-full">
+            <Link href="/login" className="font-medium hover:text-orange-500">
               Login
             </Link>
-            <Link href="/register" className="btn btn-primary rounded-full">
-              <UserRound size={17} />
+            <Link
+              href="/register"
+              className="bg-orange-500 text-white px-4 py-2 rounded-lg"
+            >
               Register
             </Link>
           </>
         )}
       </div>
-    </div>
+    </nav>
   );
 }

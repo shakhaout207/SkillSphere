@@ -2,81 +2,90 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ImageIcon, Save, User } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 
 export default function UpdateProfilePage() {
+  const { user, loading, updateUserInfo } = useAuth();
   const router = useRouter();
-  const { user, loading, updateProfile } = useAuth();
-  const [formData, setFormData] = useState({ name: "", image: "" });
+
+  const [name, setName] = useState("");
+  const [photoURL, setPhotoURL] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/login?redirect=/my-profile/update");
+      router.push("/login");
     }
 
     if (user) {
-      setFormData({ name: user.name, image: user.image });
+      setName(user.displayName || "");
+      setPhotoURL(user.photoURL || "");
     }
   }, [loading, user, router]);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    updateProfile(formData);
-    router.push("/my-profile");
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    try {
+      await updateUserInfo(name, photoURL);
+      toast.success("Profile updated successfully");
+      router.push("/my-profile");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
-  if (loading || !user) {
-    return (
-      <main className="min-h-screen grid place-items-center">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
-      </main>
-    );
+  if (loading) {
+    return <p className="text-center mt-20">Loading...</p>;
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 grid place-items-center px-6 py-14">
-      <div className="w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl border border-slate-100">
-        <h1 className="text-4xl font-black text-center">Update Profile</h1>
-        <p className="text-center text-slate-500 mt-2">
-          Change your name and profile image URL.
-        </p>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
+        <h1 className="text-3xl font-bold text-center mb-6 text-orange-500">
+          Update Information
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-8">
-          <label className="input input-bordered flex items-center gap-2 rounded-2xl">
-            <User size={18} />
+        <form onSubmit={handleUpdate} className="space-y-5">
+          <div>
+            <label className="block font-semibold mb-2">
+              Name <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
-              placeholder="Name"
-              className="grow"
-              value={formData.name}
-              onChange={(event) =>
-                setFormData({ ...formData, name: event.target.value })
-              }
+              className="w-full border rounded-xl px-4 py-3 outline-none focus:border-orange-500"
             />
-          </label>
+          </div>
 
-          <label className="input input-bordered flex items-center gap-2 rounded-2xl">
-            <ImageIcon size={18} />
+          <div>
+            <label className="block font-semibold mb-2">
+              Image URL
+            </label>
             <input
               type="url"
-              required
-              placeholder="Image URL"
-              className="grow"
-              value={formData.image}
-              onChange={(event) =>
-                setFormData({ ...formData, image: event.target.value })
-              }
+              placeholder="https://example.com/photo.jpg"
+              value={photoURL}
+              onChange={(e) => setPhotoURL(e.target.value)}
+              className="w-full border rounded-xl px-4 py-3 outline-none focus:border-orange-500"
             />
-          </label>
+          </div>
 
-          <button className="btn btn-primary w-full rounded-full">
-            <Save size={18} />
+          <button
+            type="submit"
+            className="w-full bg-orange-500 text-white py-3 rounded-xl font-semibold hover:bg-orange-600 transition"
+          >
             Update Information
           </button>
         </form>
       </div>
-    </main>
+    </div>
   );
 }

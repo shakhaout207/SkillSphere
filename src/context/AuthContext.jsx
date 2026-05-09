@@ -1,102 +1,94 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { auth, googleProvider } from "@/lib/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithRedirect,
+  getRedirectResult,
+  signOut,
+  updateProfile,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 const AuthContext = createContext(null);
 
-const USERS_KEY = "skillsphere_users";
-const CURRENT_USER_KEY = "skillsphere_current_user";
+const makeUser = (firebaseUser) => {
+  if (!firebaseUser) return null;
+  return {
+    uid: firebaseUser.uid,
+    displayName: firebaseUser.displayName || "",
+    email: firebaseUser.email || "",
+    photoURL: firebaseUser.photoURL || "",
+  };
+};
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem(CURRENT_USER_KEY);
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setUser(makeUser(result.user));
+        }
+      })
+      .catch((error) => {
+        console.log("Google Redirect Error:", error.message);
+      });
 
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(makeUser(currentUser));
+      setLoading(false);
+    });
 
-    setLoading(false);
+    return () => unsubscribe();
   }, []);
 
-  const register = ({ name, email, password, image }) => {
-    const users = JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-    const userExists = users.some((item) => item.email === email);
-
-    if (userExists) {
-      toast.error("This email is already registered.");
-      return false;
-    }
-
-    const newUser = {
-      id: Date.now(),
-      name,
-      email,
-      password,
-      image: image || "https://i.pravatar.cc/150?img=12"
-    };
-
-    localStorage.setItem(USERS_KEY, JSON.stringify([...users, newUser]));
-    toast.success("Registration successful. Please login.");
-    return true;
+  const registerUser = async (name, email, password, photoURL) => {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(result.user, {
+      displayName: name,
+      photoURL: photoURL || "",
+    });
+    setUser({
+      uid: result.user.uid,
+      displayName: name,
+      email: result.user.email,
+      photoURL: photoURL || "",
+    });
+    return result.user;
   };
 
-  const login = ({ email, password }) => {
-    const users = JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-    const foundUser = users.find(
-      (item) => item.email === email && item.password === password
-    );
-
-    if (!foundUser) {
-      toast.error("Invalid email or password.");
-      return false;
-    }
-
-    const safeUser = {
-      id: foundUser.id,
-      name: foundUser.name,
-      email: foundUser.email,
-      image: foundUser.image
-    };
-
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser));
-    setUser(safeUser);
-    toast.success("Login successful.");
-    return true;
+  const loginUser = async (email, password) => {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    setUser(makeUser(result.user));
+    return result.user;
   };
 
-  const googleLogin = () => {
-    const googleUser = {
-      id: 999,
-      name: "Google Learner",
-      email: "google.user@skillsphere.com",
-      image: "https://i.pravatar.cc/150?img=32"
-    };
-
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(googleUser));
-    setUser(googleUser);
-    toast.success("Google login successful.");
+  const googleLogin = async () => {
+    await signInWithRedirect(auth, googleProvider);
   };
 
-  const logout = () => {
-    localStorage.removeItem(CURRENT_USER_KEY);
+  const logoutUser = async () => {
+    await signOut(auth);
     setUser(null);
-    toast.success("Logged out successfully.");
   };
 
-  const updateProfile = ({ name, image }) => {
-    const updatedUser = {
-      ...user,
-      name: name || user.name,
-      image: image || user.image
-    };
-
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedUser));
-    setUser(updatedUser);
-    toast.success("Profile updated successfully.");
+  const updateUserInfo = async (name, photoURL) => {
+    if (!auth.currentUser) throw new Error("No logged in user found");
+    await updateProfile(auth.currentUser, {
+      displayName: name,
+      photoURL: photoURL || "",
+    });
+    setUser({
+      uid: auth.currentUser.uid,
+      displayName: name,
+      email: auth.currentUser.email,
+      photoURL: photoURL || "",
+    });
   };
 
   return (
@@ -104,11 +96,11 @@ export function AuthProvider({ children }) {
       value={{
         user,
         loading,
-        register,
-        login,
+        registerUser,
+        loginUser,
         googleLogin,
-        logout,
-        updateProfile
+        logoutUser,
+        updateUserInfo,
       }}
     >
       {children}

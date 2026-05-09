@@ -3,68 +3,75 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Pencil, ShieldCheck, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function MyProfilePage() {
-  const router = useRouter();
   const { user, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/login?redirect=/my-profile");
+      router.push("/login");
     }
   }, [loading, user, router]);
 
-  if (loading || !user) {
-    return (
-      <main className="min-h-screen grid place-items-center">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
-      </main>
-    );
+  if (loading) {
+    return <p className="text-center mt-20">Loading profile...</p>;
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-5 py-14">
-      <section className="max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-primary to-indigo-800 text-white rounded-3xl p-10 shadow-2xl">
-          <div className="flex flex-col md:flex-row items-center gap-8">
+    <div className="min-h-screen px-6 py-12 bg-gray-50">
+      <div className="max-w-xl mx-auto bg-white shadow-xl rounded-2xl p-8">
+        <h1 className="text-3xl font-bold text-center mb-6 text-orange-500">
+          My Profile
+        </h1>
+
+        <div className="flex flex-col items-center gap-4">
+          {user.photoURL ? (
             <img
-              src={user.image}
-              alt={user.name}
-              className="h-36 w-36 rounded-full object-cover ring-4 ring-white"
+              src={user.photoURL}
+              alt="Profile"
+              className="w-28 h-28 rounded-full object-cover border"
             />
-
-            <div className="text-center md:text-left">
-              <h1 className="text-4xl font-black">{user.name}</h1>
-              <p className="mt-2 text-blue-100">{user.email}</p>
-              <Link href="/my-profile/update" className="btn btn-warning rounded-full mt-6">
-                <Pencil size={18} /> Update Information
-              </Link>
+          ) : (
+            <div className="w-28 h-28 rounded-full bg-orange-500 text-white flex items-center justify-center text-4xl font-bold">
+              {user.displayName ? user.displayName[0].toUpperCase() : "U"}
             </div>
+          )}
+
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold">
+              {user.displayName || "No Name Added"}
+            </h2>
+            <p className="text-gray-600 mt-1">{user.email}</p>
           </div>
+
+          <div className="w-full mt-5 border rounded-xl p-4 bg-gray-50">
+            <p className="mb-2">
+              <span className="font-semibold">Name:</span>{" "}
+              {user.displayName || "Not added"}
+            </p>
+            <p className="mb-2">
+              <span className="font-semibold">Email:</span> {user.email}
+            </p>
+            <p className="break-all">
+              <span className="font-semibold">Photo URL:</span>{" "}
+              {user.photoURL || "Not added"}
+            </p>
+          </div>
+
+          <Link
+            href="/my-profile/update"
+            className="bg-orange-500 text-white px-6 py-3 rounded-xl mt-4 font-semibold hover:bg-orange-600 transition"
+          >
+            Update Information
+          </Link>
         </div>
-
-        <div className="grid gap-6 md:grid-cols-3 mt-8">
-          <div className="bg-white p-6 rounded-3xl shadow border border-slate-100">
-            <User className="text-primary" />
-            <h3 className="font-bold mt-3">Name</h3>
-            <p className="text-slate-500">{user.name}</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-3xl shadow border border-slate-100">
-            <Mail className="text-primary" />
-            <h3 className="font-bold mt-3">Email</h3>
-            <p className="text-slate-500 break-all">{user.email}</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-3xl shadow border border-slate-100">
-            <ShieldCheck className="text-primary" />
-            <h3 className="font-bold mt-3">Status</h3>
-            <p className="text-slate-500">Logged In Student</p>
-          </div>
-        </div>
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }
